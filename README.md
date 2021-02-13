@@ -42,4 +42,4 @@ mclient -u monetdb -d ecommercedb
 
 - [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
 - [devUDF: Increasing UDF development efficiency through IDE
-Integration. It works like a PyCharm!](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)
+Integration](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)
