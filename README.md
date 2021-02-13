@@ -24,27 +24,22 @@ apt install monetdb-python3
 apt install monetdb-client
 
 monetdbd create ecommercedbfarm
-
 monetdbd start ecommercedbfarm
 
 monetdb create ecommercedb
-
 monetdb set embedpy3=true ecommercedb
-
 monetdb release ecommercedb
 
 mclient -u monetdb -d ecommercedb
 
 # run statement sql/json_loader.sql
-
 # run statement sql/create_specs_table.sql
-
 # run statement sql/create_spec_matchings_table.sql
-
 # run statement sql/create_constraint.sql
 ```
-
 
 ## References
 
 - [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
+- [devUDF: Increasing UDF development efficiency through IDE
+Integration. It works like a PyCharm!](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)
