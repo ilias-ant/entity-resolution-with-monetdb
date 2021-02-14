@@ -24,7 +24,7 @@ LANGUAGE PYTHON {
 
                 data = json.loads(f.read())
             
-            # keep global identifier it, format it as in labelled dataset
+            # keep global identifier, format it as in the labelled dataset
             data['id'] = subdir + '//' + datafile.split('.json')[0]
 
             _emit.emit(prepare_json(data))
