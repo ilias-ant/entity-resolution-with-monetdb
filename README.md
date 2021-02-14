@@ -1,4 +1,5 @@
 # Entity Resolution with MonetDB
+**In-Database Machine Learning**
 
 A proof-of-concept approach on an entity resolution task, with [Tensorflow](https://github.com/tensorflow/tensorflow) 
 for the machine learning part and **everything** happening inside a [MonetDB](https://www.monetdb.org/Home) instance. 
@@ -31,8 +32,15 @@ For a more detailed view of the task, the datasets, the evaluation process, refe
 
 ## MonetDB setup
 
+The [official documentation procedure](https://www.monetdb.org/downloads/deb/) should be followed, in order 
+for your deb-based distribution to be able to install the MonetDB via the ``apt`` package manager.
+
+To be precise, everything up until the ``sudo apt update`` command is sufficient. From there on, we will diverge a bit in order 
+to get a MonetDB installation with embedded Python3 support, with the
+following commands:  
+
 ```shell
-# root permissions may be required for the following
+# root permission may be needed here 
 apt install monetdb-python3
 apt install monetdb-client
 
@@ -67,5 +75,6 @@ By this point, you should have a first, working database schema.
 - [Report: Entity Resolution with MonetDB](report.pdf)
 - [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
 - [SIGMOD 2020 Contest: Task Details](http://www.inf.uniroma3.it/db/sigmod2020contest/task.html)
+- [Embedded Python/NumPy in MonetDB](https://www.monetdb.org/blog/embedded-pythonnumpy-monetdb)
 - [devUDF: Increasing UDF development efficiency through IDE
 Integration](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)
