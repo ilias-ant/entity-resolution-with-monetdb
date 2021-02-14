@@ -40,7 +40,7 @@ apt install monetdb-client
 monetdbd create ecommercedbfarm
 monetdbd start ecommercedbfarm
 
-# create a database, wih python3 support activated
+# create a database, with python3 support activated
 monetdb create ecommercedb
 monetdb set embedpy3=true ecommercedb
 monetdb release ecommercedb
@@ -52,7 +52,7 @@ All the necessary SQL statements (UDFs etc.) are available in the ``sql/`` direc
 hosted in a separate ``.sql`` file.
 
 ```shell
-mclient -u monetdb -d ecommercedb  # password is the default: monetdb
+mclient -u monetdb -d ecommercedb  # password is the default (<monetdb>)
 
 # run statement sql/json_loader.sql
 # run statement sql/create_specs_table.sql - this may take a while
