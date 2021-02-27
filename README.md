@@ -56,17 +56,31 @@ monetdb release ecommercedb
 
 ## Loading the Data
 
+Make sure that the dataset is extracted. For example, you can use:
+
+```shell
+tar xvzf data/camera_specs.tar.gz -C ./data
+```
+
 All the necessary SQL statements (UDFs etc.) are available in the ``sql/`` directory, with each independent component 
 hosted in a separate ``.sql`` file.
 
+Just open:
+
 ```shell
 mclient -u monetdb -d ecommercedb  # password is the default (<monetdb>)
-
-# run statement sql/json_loader.sql
-# run statement sql/create_specs_table.sql - this may take a while
-# run statement sql/create_spec_matchings_table.sql
-# run statement sql/create_constraint.sql
 ```
+and cast the SQL statements, preferably in the above order:
+
+1. sql/cameras_loader.sql
+2. sql/specs_loader.sql
+3. sql/cameras_bulk_insert.sql
+4. sql/cameras_constraints.sql
+5. sql/specs_bulk_insert.sql
+6. sql/specs_constraints.sql
+7. sql/labels_create.sql
+8. sql/labels_bulk_insert.sql
+9. sql/labels_constraints.sql
 
 By this point, you should have a first, working database schema.
 

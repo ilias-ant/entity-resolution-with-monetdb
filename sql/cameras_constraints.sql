@@ -1,0 +1,1 @@
+ALTER TABLE cameras ADD PRIMARY KEY (id);

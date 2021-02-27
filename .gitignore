@@ -130,7 +130,7 @@ dmypy.json
 
 .idea
 
-data/camera_specs
+data/*camera_specs
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
