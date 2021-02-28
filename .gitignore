@@ -131,6 +131,7 @@ dmypy.json
 .idea
 
 data/*camera_specs
+notebooks/lectures
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
