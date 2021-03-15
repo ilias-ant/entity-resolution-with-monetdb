@@ -1,4 +1,4 @@
-CREATE LOADER specs_loader(dirpath STRING)
+CREATE OR REPLACE LOADER specs_loader(dirpath STRING)
 LANGUAGE PYTHON {
     import json
     import os

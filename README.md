@@ -81,14 +81,39 @@ and cast the SQL statements, preferably in the above order:
 7. sql/labels_create.sql
 8. sql/labels_bulk_insert.sql
 9. sql/labels_constraints.sql
+   
+By this point, you should have a first, working database schema. 
 
-By this point, you should have a first, working database schema.
+## Blocking
+
+We would like to block together cameras of the same brand. This will later enable us to perform the pairwise comparisons
+necessary for the entity resolution step only on suitable sub-spaces and not between all possible pairs.
+
+To implement the blocking step, we will need the following:
+
+10. sql/text_utils.sql
+11. sql/blocks_create.sql
+12. sql/cameras_add_block_id.sql
+13. sql/blocks_bulk_insert.sql
+14. sql/blocking.sql
+
+## Filtering
+15. sql/matched_camera_pairs_create.sql
+16. sql/matched_camera_pairs_constraints.sql
+17. sql/filtering.sql
+
+**note**: you can also use the unified `main.sql` in order to run everything at once!
 
 ## References
 
 - [Report: Entity Resolution with MonetDB](report.pdf)
+- [A Survey of Blocking and Filtering Techniques for Entity Resolution](https://arxiv.org/pdf/1905.06167.pdf)  
 - [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
 - [SIGMOD 2020 Contest: Task Details](http://www.inf.uniroma3.it/db/sigmod2020contest/task.html)
+- [MonetDB/Python Loader Functions](https://www.monetdb.org/blog/monetdbpython-loader-functions)  
 - [Embedded Python/NumPy in MonetDB](https://www.monetdb.org/blog/embedded-pythonnumpy-monetdb)
+- [Deep Learning for Entity Matching: A Design Space Exploration](http://pages.cs.wisc.edu/~anhai/papers1/deepmatcher-sigmod18.pdf)  
 - [devUDF: Increasing UDF development efficiency through IDE
 Integration](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)
+- [Don’t Keep My UDFs Hostage - Exporting UDFs For
+Debugging Purposes](http://sbbd.org.br/2018/wp-content/uploads/sites/3/2018/02/p246-251.pdf)  

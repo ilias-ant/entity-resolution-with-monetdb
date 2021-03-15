@@ -1,4 +1,4 @@
-CREATE LOADER cameras_loader(dirpath STRING)
+CREATE OR REPLACE LOADER cameras_loader(dirpath STRING)
 LANGUAGE PYTHON {
     import json
     import os
