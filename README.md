@@ -109,11 +109,14 @@ To implement the blocking step, we will need the following:
 - [Report: Entity Resolution with MonetDB](report.pdf)
 - [A Survey of Blocking and Filtering Techniques for Entity Resolution](https://arxiv.org/pdf/1905.06167.pdf)  
 - [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
+- [Deep Integration of Machine Learning Into Column Stores](https://pdet.github.io/assets/papers/deep_learning_column_store.pdf)  
 - [SIGMOD 2020 Contest: Task Details](http://www.inf.uniroma3.it/db/sigmod2020contest/task.html)
 - [MonetDB/Python Loader Functions](https://www.monetdb.org/blog/monetdbpython-loader-functions)  
 - [Embedded Python/NumPy in MonetDB](https://www.monetdb.org/blog/embedded-pythonnumpy-monetdb)
+- [Vectorized UDFs in Column-Stores](https://mytherin.github.io/papers/2016-vectorizedudfs.pdf)  
 - [Deep Learning for Entity Matching: A Design Space Exploration](http://pages.cs.wisc.edu/~anhai/papers1/deepmatcher-sigmod18.pdf)  
 - [devUDF: Increasing UDF development efficiency through IDE
 Integration](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)
 - [Don’t Keep My UDFs Hostage - Exporting UDFs For
-Debugging Purposes](http://sbbd.org.br/2018/wp-content/uploads/sites/3/2018/02/p246-251.pdf)  
+Debugging Purposes](http://sbbd.org.br/2018/wp-content/uploads/sites/3/2018/02/p246-251.pdf)
+- [FaBIAM Architecture Overview](https://fashionbrain-project.eu/showcase/MonetDB/output1.html)  
