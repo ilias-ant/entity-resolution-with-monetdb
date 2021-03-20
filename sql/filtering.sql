@@ -23,7 +23,7 @@ SELECT cameras.id,
 FROM cameras
 INNER JOIN blocks b ON cameras.block_id = b.id
 WHERE camera_model(sanitize_text(to_lowercase(page_title))) <> '')
-SELECT camera_id, camera_brand  || '_' || camera_model from matches;
+SELECT camera_id, camera_brand  || '_' || camera_model from matches;  -- signature: brand + model
 
 -- store all the rest here
 INSERT INTO unmatched_cameras
