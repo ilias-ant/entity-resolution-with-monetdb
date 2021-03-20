@@ -274,3 +274,5 @@ cython_debug/
 
 sql/temp/
 
+# MonetDB farm
+ecommercedbfarm

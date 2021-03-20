@@ -44,31 +44,37 @@ LANGUAGE PYTHON_MAP {
     return numpy.array([replace_aliases(title) for title in text], dtype=numpy.object)
 };
 
-CREATE OR REPLACE FUNCTION brand(text STRING)
+-- extracts the camera brand from text, based on a close-set of brands
+CREATE OR REPLACE FUNCTION camera_brand(text STRING)
 RETURNS STRING
 LANGUAGE PYTHON_MAP {
+    import re
 
-    brands = [
+
+    matcher = re.compile(r'|'.join([
         "aiptek", "apple", "argus", "benq", "canon", "casio", "coleman", "contour", "dahua", "epson", "fujifilm",
         "garmin", "ge", "gopro", "hasselblad", "hikvision", "howell", "hp", "intova", "jvc", "kodak", "leica", "lg",
         "lowepro", "lytro", "minolta", "minox", "motorola", "mustek", "nikon", "olympus", "panasonic", "pentax",
         "philips", "polaroid", "ricoh", "sakar", "samsung", "sanyo", "sekonic", "sigma", "sony", "tamron", "toshiba",
         "vivitar", "vtech", "wespro", "yourdeal"
-    ]
+    ]))
+
 
     def retrieve_brand(txt):
 
-        retrieved_brands = [brand for brand in brands if brand in txt]
+        match = matcher.search(txt)
 
-        return max(retrieved_brands, key=len) if retrieved_brands else ''
+        return match.group() if match else ''
 
     return numpy.array([retrieve_brand(title) for title in text], dtype=numpy.object)
 };
 
-CREATE OR REPLACE FUNCTION model(text STRING)
+-- extracts the camera model from text, based on heuristics
+CREATE OR REPLACE FUNCTION camera_model(text STRING)
 RETURNS STRING
 LANGUAGE PYTHON_MAP {
     import re
+
 
     measurement_units = [
         "cm", "mm", "nm", "inch", "gb", "mb", "mp", "megapixel", "megapixels", "mega", "ghz", "hz", "mah", "cmos", "mps"
@@ -91,7 +97,8 @@ LANGUAGE PYTHON_MAP {
 
         models = [model.strip() for model in models if not model_contains_measurement_units(model.strip())]
 
-        return max(models, key=len) if models else ''
+        # position-wise, leftmost extracted model is likelier to be the model
+        return models[0] if models else ''
 
     return numpy.array([retrieve_model(title) for title in text], dtype=numpy.object)
 };

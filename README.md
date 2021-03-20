@@ -12,7 +12,24 @@ essentially the same, in its own right.
 The task consists of identifying which product specifications (in short, specs) from multiple e-commerce websites 
 represent the same real-world product.
 
-You are provided with a dataset including ~30k specs in JSON format, each spec containing a list of (attribute_name, 
+*example product spec*
+```json
+{
+    "<page title>": "Samsung Smart WB50F Digital Camera White Price in India",
+    
+    "brand": "Samsung",
+    
+    "dimension": "101 x 68 x 27.1 mm",
+    
+    "display": "LCD 3 Inches",
+    
+    "pixels": "Optical Sensor Resolution (in MegaPixel)\n16.2 MP",
+    
+    "battery": "Li-Ion"
+}
+```
+
+We are provided with a dataset including ~**30k** specs in JSON format, each spec containing a list of (attribute_name, 
 attribute_value) pairs extracted from a different web page, collected across 24 different web sources.
 
 Each spec is stored as a file, and files are organized into directories, each directory corresponding to a different
@@ -22,8 +39,7 @@ accessories (e.g. *lens kit, bag, tripod*). Accessories do not contribute to pro
 *Canon EOS 5D Mark II* that is sold as a bundle with a bag represents the same core product as a *Canon EOS 5D Mark II* 
 that is sold alone.
 
-For a more detailed view of the task, the datasets, the evaluation process, refer to the official 
-[task page](http://www.inf.uniroma3.it/db/sigmod2020contest/task.html) of SIGMOD 2020.
+For a more detailed view of the task, the datasets, the evaluation process, see the *Other References* section below.
 
 ## System Dependencies
 
@@ -44,19 +60,19 @@ following commands:
 apt install monetdb-python3
 apt install monetdb-client
 
-# create a db farm
+# create a db farm, preferably at this project's root dir
 monetdbd create ecommercedbfarm
 monetdbd start ecommercedbfarm
 
-# create a database, with python3 support activated
+# create a database, with python3 support enabled
 monetdb create ecommercedb
 monetdb set embedpy3=true ecommercedb
 monetdb release ecommercedb
 ```
 
-## Loading the Data
+## Data Loading
 
-Make sure that the dataset is extracted. For example, you can use:
+Make sure that the dataset is in extracted form. For example, you can use:
 
 ```shell
 tar xvzf data/camera_specs.tar.gz -C ./data
@@ -64,6 +80,9 @@ tar xvzf data/camera_specs.tar.gz -C ./data
 
 All the necessary SQL statements (UDFs etc.) are available in the ``sql/`` directory, with each independent component 
 hosted in a separate ``.sql`` file.
+
+**NOTE**: Also, for convenience, there is the ``main.sql`` available, which contains all the SQL statements together 
+and can be used for a quicker build.
 
 Just open:
 
@@ -86,37 +105,47 @@ By this point, you should have a first, working database schema.
 
 ## Blocking
 
-We would like to block together cameras of the same brand. This will later enable us to perform the pairwise comparisons
-necessary for the entity resolution step only on suitable sub-spaces and not between all possible pairs.
+We would like to block together cameras of the same brand. This will help us restrict the 
+"potential matching" space, as cameras that belong to different blocks should not, in principle, refer to the same 
+camera! 
 
 To implement the blocking step, we will need the following:
 
-10. sql/text_utils.sql
-11. sql/blocks_create.sql
-12. sql/cameras_add_block_id.sql
-13. sql/blocks_bulk_insert.sql
+10. sql/blocks_create.sql
+11. sql/cameras_add_block_id.sql
+12. sql/blocks_bulk_insert.sql
+13. sql/text_utils.sql
 14. sql/blocking.sql
 
 ## Filtering
-15. sql/matched_camera_pairs_create.sql
-16. sql/matched_camera_pairs_constraints.sql
-17. sql/filtering.sql
 
-**note**: you can also use the unified `main.sql` in order to run everything at once!
+After block formation, we would also like to filter out "easy" matches, by extracting-via-heuristics and comparing the 
+models of the cameras. We would thus end up - for each block - with a subset of cameras that 
+match both on brand and model (and basically refer to the same camera).
 
-## References
+What we have gained from blocking & filtering is that we now only have to work (and eventually perform pair-wise 
+comparisons) with the camera subsets that remained unmatched within blocks.
 
-- [Report: Entity Resolution with MonetDB](report.pdf)
-- [A Survey of Blocking and Filtering Techniques for Entity Resolution](https://arxiv.org/pdf/1905.06167.pdf)  
+To implement the filtering step, we will need the following:
+
+15. sql/filtering.sql
+
+**performance**: to execute all the above takes, on average, **12.5 s**. 
+
+## Papers
+
 - [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
-- [Deep Integration of Machine Learning Into Column Stores](https://pdet.github.io/assets/papers/deep_learning_column_store.pdf)  
+- [A Survey of Blocking and Filtering Techniques for Entity Resolution](https://arxiv.org/pdf/1905.06167.pdf)
+- [Deep Integration of Machine Learning Into Column Stores](https://pdet.github.io/assets/papers/deep_learning_column_store.pdf)
+- [Deep Learning for Entity Matching: A Design Space Exploration](http://pages.cs.wisc.edu/~anhai/papers1/deepmatcher-sigmod18.pdf)
+- [Vectorized UDFs in Column-Stores](https://mytherin.github.io/papers/2016-vectorizedudfs.pdf)
+- [devUDF: Increasing UDF development efficiency through IDE](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)
+- [Don’t Keep My UDFs Hostage - Exporting UDFs For
+Debugging Purposes](http://sbbd.org.br/2018/wp-content/uploads/sites/3/2018/02/p246-251.pdf)
+
+## Other References
+
 - [SIGMOD 2020 Contest: Task Details](http://www.inf.uniroma3.it/db/sigmod2020contest/task.html)
 - [MonetDB/Python Loader Functions](https://www.monetdb.org/blog/monetdbpython-loader-functions)  
 - [Embedded Python/NumPy in MonetDB](https://www.monetdb.org/blog/embedded-pythonnumpy-monetdb)
-- [Vectorized UDFs in Column-Stores](https://mytherin.github.io/papers/2016-vectorizedudfs.pdf)  
-- [Deep Learning for Entity Matching: A Design Space Exploration](http://pages.cs.wisc.edu/~anhai/papers1/deepmatcher-sigmod18.pdf)  
-- [devUDF: Increasing UDF development efficiency through IDE
-Integration](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)
-- [Don’t Keep My UDFs Hostage - Exporting UDFs For
-Debugging Purposes](http://sbbd.org.br/2018/wp-content/uploads/sites/3/2018/02/p246-251.pdf)
-- [FaBIAM Architecture Overview](https://fashionbrain-project.eu/showcase/MonetDB/output1.html)  
+- [FaBIAM Architecture Overview](https://fashionbrain-project.eu/showcase/MonetDB/output1.html)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "entity-resolution-with-monetdb"
-version = "0.1.0"
+version = "0.2.0"
 description = "A proof-of-concept entity resolution approach, with Tensorflow, inside a MonetDB."
 authors = ["Ilias Antonopoulos <ilias.antonopoulos@yahoo.gr>"]
 license = "MIT"
@@ -8,12 +8,11 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = ">=3.7.1,<4.0"
 
-tensorflow = "^2.4.1"
+more-itertools = "^8.7.0"
 notebook = "^6.2.0"
 pandas = "^1.2.2"
-scikit-learn = "^0.24.1"
 plotnine = "^0.7.1"
-more-itertools = "^8.7.0"
+scikit-learn = "^0.24.1"
 
 [tool.poetry.dev-dependencies]
 
