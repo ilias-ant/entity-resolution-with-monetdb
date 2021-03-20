@@ -94,15 +94,15 @@ ALTER TABLE labels ADD CONSTRAINT "fk_cameras_id_2" FOREIGN KEY (right_camera_id
 
 -- BLOCKING ---------------------------------------------------------------------------------------------------------
 
-CREATE TABLE blocks (
+CREATE TABLE brands (
     "id" SERIAL,
     "name" VARCHAR(128) NOT NULL UNIQUE
 );
 
-ALTER TABLE cameras ADD COLUMN block_id INTEGER;
-ALTER TABLE cameras ADD CONSTRAINT "fk_block_id" FOREIGN KEY (block_id) REFERENCES blocks (id);
+ALTER TABLE cameras ADD COLUMN brand_id INTEGER;
+ALTER TABLE cameras ADD CONSTRAINT "fk_brand_id" FOREIGN KEY (brand_id) REFERENCES brands (id);
 
-INSERT INTO blocks (name)
+INSERT INTO brands (name)
 VALUES ('aiptek'), ('apple'), ('argus'), ('benq'), ('canon'), ('casio'), ('coleman'), ('contour'), ('dahua'),
        ('epson'), ('fujifilm'), ('garmin'), ('ge'), ('gopro'), ('hasselblad'), ('hikvision'), ('howell'), ('hp'),
        ('intova'), ('jvc'), ('kodak'), ('leica'), ('lg'), ('lowepro'), ('lytro'), ('minolta'), ('minox'), ('motorola'),
@@ -137,11 +137,12 @@ LANGUAGE PYTHON_MAP {
 
     aliases = {
         "cannon": "canon", "canonpowershot": "canon", "eos": "canon", "used canon": "canon", "fugi": "fujifilm",
-        "fugifilm": "fujifilm", "fuji": "fujifilm", "fujufilm": "fujifilm", "general": "ge", "gopros": "gopro",
-        "hikvision3mp":"hikvision", "hikvisionip": "hikvision", "bell+howell": "howell", "howellwp7": "howell",
-        "minotla": "minolta", "canon&nikon": "nikon", "olympuss": "olympus", "panosonic": "panasonic",
-        "pentax": "ricoh", "ssamsung": "samsung", "repairsony": "sony", "elf": "elph", "s480016mp": "s4800",
-        "vivicam": "v", "plus": "+", "1080p": "", "720p": "", "(not Provided)": ""
+        "fugifilm": "fujifilm", "fuji": "fujifilm", "fujufilm": "fujifilm", "fijifilm": "fujifilm",
+        "fuijifilm": "fujifilm", "general": "ge", "gopros": "gopro", "hikvision3mp":"hikvision",
+        "hikvisionip": "hikvision", "bell+howell": "howell", "howellwp7": "howell", "minotla": "minolta",
+        "canon&nikon": "nikon", "olympuss": "olympus", "panosonic": "panasonic", "pentax": "ricoh",
+        "ssamsung": "samsung", "repairsony": "sony", "elf": "elph", "s480016mp": "s4800", "vivicam": "v", "plus": "+",
+        "1080p": "", "720p": "", "(not Provided)": ""
     }
 
     def replace_aliases(txt):
@@ -155,6 +156,7 @@ LANGUAGE PYTHON_MAP {
     return numpy.array([replace_aliases(title) for title in text], dtype=numpy.object)
 };
 
+-- extracts the camera brand from text, based on a close-set of brands
 CREATE OR REPLACE FUNCTION camera_brand(text STRING)
 RETURNS STRING
 LANGUAGE PYTHON_MAP {
@@ -179,6 +181,7 @@ LANGUAGE PYTHON_MAP {
     return numpy.array([retrieve_brand(title) for title in text], dtype=numpy.object)
 };
 
+-- extracts the camera model from text, based on heuristics
 CREATE OR REPLACE FUNCTION camera_model(text STRING)
 RETURNS STRING
 LANGUAGE PYTHON_MAP {
@@ -213,12 +216,12 @@ LANGUAGE PYTHON_MAP {
 };
 
 UPDATE cameras
-SET block_id = extraction.block_id
+SET brand_id = extraction.brand_id
 FROM (
     WITH camera (id, extracted_brand)
     AS (SELECT id, camera_brand(fix_aliases(sanitize_text(to_lowercase(page_title)))) from cameras)
-    SELECT camera.id AS camera_id, camera.extracted_brand, blocks.id AS block_id FROM camera
-    INNER JOIN blocks ON camera.extracted_brand = blocks.name
+    SELECT camera.id AS camera_id, camera.extracted_brand, brands.id AS brand_id FROM camera
+    INNER JOIN brands ON camera.extracted_brand = brands.name
     ) AS extraction
 WHERE cameras.id = extraction.camera_id;
 
@@ -240,11 +243,11 @@ ALTER TABLE unmatched_cameras ADD CONSTRAINT "fk_unmatched_cameras_id" FOREIGN K
 
 INSERT INTO matched_cameras
 WITH matches (camera_id, camera_brand, camera_model) AS (
-SELECT cameras.id,
+SELECT cameras.id as camera_id,
        b.name as camera_brand,
        camera_model(sanitize_text(to_lowercase(page_title))) as camera_model
 FROM cameras
-INNER JOIN blocks b ON cameras.block_id = b.id
+INNER JOIN brands b ON cameras.brand_id = b.id
 WHERE camera_model(sanitize_text(to_lowercase(page_title))) <> '')
 SELECT camera_id, camera_brand  || '_' || camera_model from matches;
 

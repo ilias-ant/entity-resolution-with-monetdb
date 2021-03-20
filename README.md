@@ -111,9 +111,9 @@ camera!
 
 To implement the blocking step, we will need the following:
 
-10. sql/blocks_create.sql
-11. sql/cameras_add_block_id.sql
-12. sql/blocks_bulk_insert.sql
+10. sql/brands_create.sql
+11. sql/cameras_add_brand_id.sql
+12. sql/brands_bulk_insert.sql
 13. sql/text_utils.sql
 14. sql/blocking.sql
 
@@ -123,14 +123,14 @@ After block formation, we would also like to filter out "easy" matches, by extra
 models of the cameras. We would thus end up - for each block - with a subset of cameras that 
 match both on brand and model (and basically refer to the same camera).
 
-What we have gained from blocking & filtering is that we now only have to work (and eventually perform pair-wise 
-comparisons) with the camera subsets that remained unmatched within blocks.
-
 To implement the filtering step, we will need the following:
 
 15. sql/filtering.sql
 
-**performance**: to execute all the above takes, on average, **12.5 s**. 
+What we have gained from blocking & filtering is that we now only have to work (and eventually perform pair-wise 
+comparisons) with the camera subsets that remained unmatched within blocks.
+
+**performance**: to execute all the above takes, on average, **6.5 s**. 
 
 ## Papers
 

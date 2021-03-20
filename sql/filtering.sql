@@ -17,11 +17,11 @@ ALTER TABLE unmatched_cameras ADD CONSTRAINT "fk_unmatched_cameras_id" FOREIGN K
 -- store the matches
 INSERT INTO matched_cameras
 WITH matches (camera_id, camera_brand, camera_model) AS (
-SELECT cameras.id,
+SELECT cameras.id as camera_id,
        b.name as camera_brand,
        camera_model(sanitize_text(to_lowercase(page_title))) as camera_model
 FROM cameras
-INNER JOIN blocks b ON cameras.block_id = b.id
+INNER JOIN brands b ON cameras.brand_id = b.id
 WHERE camera_model(sanitize_text(to_lowercase(page_title))) <> '')
 SELECT camera_id, camera_brand  || '_' || camera_model from matches;  -- signature: brand + model
 
