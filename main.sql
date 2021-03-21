@@ -2,7 +2,9 @@
 -- all you have to do is replace the absolute paths to the datafiles where necessary
 -- note: each separate component/action is also available for study under the sql/ directory
 
+------------------------------------------------------------------------------------------------------------------
 -- DATA LOADING --------------------------------------------------------------------------------------------------
+-- load all the available data in the database and create a schema
 
 CREATE OR REPLACE LOADER cameras_loader(dirpath STRING)
 LANGUAGE PYTHON {
@@ -92,23 +94,10 @@ ALTER TABLE labels ADD PRIMARY KEY (left_camera_id, right_camera_id);
 ALTER TABLE labels ADD CONSTRAINT "fk_cameras_id_1" FOREIGN KEY (left_camera_id) REFERENCES cameras (id);
 ALTER TABLE labels ADD CONSTRAINT "fk_cameras_id_2" FOREIGN KEY (right_camera_id) REFERENCES cameras (id);
 
--- BLOCKING ---------------------------------------------------------------------------------------------------------
 
-CREATE TABLE brands (
-    "id" SERIAL,
-    "name" VARCHAR(128) NOT NULL UNIQUE
-);
-
-ALTER TABLE cameras ADD COLUMN brand_id INTEGER;
-ALTER TABLE cameras ADD CONSTRAINT "fk_brand_id" FOREIGN KEY (brand_id) REFERENCES brands (id);
-
-INSERT INTO brands (name)
-VALUES ('aiptek'), ('apple'), ('argus'), ('benq'), ('canon'), ('casio'), ('coleman'), ('contour'), ('dahua'),
-       ('epson'), ('fujifilm'), ('garmin'), ('ge'), ('gopro'), ('hasselblad'), ('hikvision'), ('howell'), ('hp'),
-       ('intova'), ('jvc'), ('kodak'), ('leica'), ('lg'), ('lowepro'), ('lytro'), ('minolta'), ('minox'), ('motorola'),
-       ('mustek'), ('nikon'), ('olympus'), ('panasonic'), ('pentax'), ('philips'), ('polaroid'), ('ricoh'), ('sakar'),
-       ('samsung'), ('sanyo'), ('sekonic'), ('sigma'), ('sony'), ('tamron'), ('toshiba'), ('vivitar'), ('vtech'),
-       ('wespro'), ('yourdeal');
+---------------------------------------------------------------------------------------------------------------------
+-- TEXT UTILS -------------------------------------------------------------------------------------------------------
+-- create various text processing utils
 
 CREATE OR REPLACE FUNCTION to_lowercase(text STRING)
 RETURNS STRING
@@ -156,6 +145,28 @@ LANGUAGE PYTHON_MAP {
     return numpy.array([replace_aliases(title) for title in text], dtype=numpy.object)
 };
 
+
+---------------------------------------------------------------------------------------------------------------------
+-- BLOCKING ---------------------------------------------------------------------------------------------------------
+-- perform blocking on cameras via extracted brand
+
+
+CREATE TABLE brands (
+    "id" SERIAL,
+    "name" VARCHAR(128) NOT NULL UNIQUE
+);
+
+ALTER TABLE cameras ADD COLUMN brand_id INTEGER;
+ALTER TABLE cameras ADD CONSTRAINT "fk_brand_id" FOREIGN KEY (brand_id) REFERENCES brands (id);
+
+INSERT INTO brands (name)
+VALUES ('aiptek'), ('apple'), ('argus'), ('benq'), ('canon'), ('casio'), ('coleman'), ('contour'), ('dahua'),
+       ('epson'), ('fujifilm'), ('garmin'), ('ge'), ('gopro'), ('hasselblad'), ('hikvision'), ('howell'), ('hp'),
+       ('intova'), ('jvc'), ('kodak'), ('leica'), ('lg'), ('lowepro'), ('lytro'), ('minolta'), ('minox'), ('motorola'),
+       ('mustek'), ('nikon'), ('olympus'), ('panasonic'), ('pentax'), ('philips'), ('polaroid'), ('ricoh'), ('sakar'),
+       ('samsung'), ('sanyo'), ('sekonic'), ('sigma'), ('sony'), ('tamron'), ('toshiba'), ('vivitar'), ('vtech'),
+       ('wespro'), ('yourdeal');
+
 -- extracts the camera brand from text, based on a close-set of brands
 CREATE OR REPLACE FUNCTION camera_brand(text STRING, brands STRING)
 RETURNS STRING
@@ -179,6 +190,39 @@ LANGUAGE PYTHON_MAP {
 
     return numpy.array([retrieve_brand(title) for title in text], dtype=numpy.object)
 };
+
+UPDATE cameras
+SET brand_id = extraction.brand_id   -- assign to block
+FROM (
+    WITH processed_camera (id, extracted_brand) AS (
+        SELECT
+        id, camera_brand(fix_aliases(sanitize_text(to_lowercase(page_title))), (SELECT listagg(name) FROM brands))
+        FROM cameras
+    )
+    SELECT processed_camera.id AS camera_id, processed_camera.extracted_brand, b.id AS brand_id
+    FROM processed_camera
+    INNER JOIN brands b ON processed_camera.extracted_brand = b.name
+) AS extraction
+WHERE cameras.id = extraction.camera_id;
+
+
+---------------------------------------------------------------------------------------------------------------------
+-- FILTERING --------------------------------------------------------------------------------------------------------
+-- perform filtering within blocks, based on extracted model, and thus create matched and unmatched clusters
+
+
+CREATE TABLE matched_cameras (
+    "camera_id" VARCHAR(128) PRIMARY KEY,
+    "signature" VARCHAR(256)
+);
+
+ALTER TABLE matched_cameras ADD CONSTRAINT "fk_matched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);
+
+CREATE TABLE unmatched_cameras (
+    "camera_id" VARCHAR(128) PRIMARY KEY
+);
+
+ALTER TABLE unmatched_cameras ADD CONSTRAINT "fk_unmatched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);
 
 -- extracts the camera model from text, based on heuristics
 CREATE OR REPLACE FUNCTION camera_model(text STRING)
@@ -230,35 +274,6 @@ LANGUAGE PYTHON_MAP {
 
     return numpy.array([retrieve_model(title) for title in text], dtype=numpy.object)
 };
-
-UPDATE cameras
-SET brand_id = extraction.brand_id   -- assign to block
-FROM (
-    WITH processed_camera (id, extracted_brand) AS (
-        SELECT
-        id, camera_brand(fix_aliases(sanitize_text(to_lowercase(page_title))), (SELECT listagg(name) FROM brands))
-        FROM cameras
-    )
-    SELECT processed_camera.id AS camera_id, processed_camera.extracted_brand, b.id AS brand_id
-    FROM processed_camera
-    INNER JOIN brands b ON processed_camera.extracted_brand = b.name
-) AS extraction
-WHERE cameras.id = extraction.camera_id;
-
--- FILTERING --------------------------------------------------------------------------------------------------------
-
-CREATE TABLE matched_cameras (
-    "camera_id" VARCHAR(128) PRIMARY KEY,
-    "signature" VARCHAR(256)
-);
-
-ALTER TABLE matched_cameras ADD CONSTRAINT "fk_matched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);
-
-CREATE TABLE unmatched_cameras (
-    "camera_id" VARCHAR(128) PRIMARY KEY
-);
-
-ALTER TABLE unmatched_cameras ADD CONSTRAINT "fk_unmatched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);
 
 INSERT INTO matched_cameras
 WITH matches (camera_id, camera_brand, camera_model) AS (

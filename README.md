@@ -113,10 +113,10 @@ camera!
 
 To implement the blocking step, we will need the following:
 
-10. sql/brands_create.sql
-11. sql/cameras_add_brand_id.sql
-12. sql/brands_bulk_insert.sql
-13. sql/text_utils.sql
+10. sql/text_utils.sql
+11. sql/brands_create.sql
+12. sql/cameras_add_brand_id.sql
+13. sql/brands_bulk_insert.sql
 14. sql/blocking.sql
 
 ## Filtering
