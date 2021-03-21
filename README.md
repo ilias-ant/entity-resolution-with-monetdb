@@ -139,7 +139,7 @@ comparisons) with the camera subsets that remained unmatched within blocks.
 
 - [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
 - [A Survey of Blocking and Filtering Techniques for Entity Resolution](https://arxiv.org/pdf/1905.06167.pdf)
-- [Deep Integration of Machine Learning Into Column Stores](https://pdet.github.io/assets/papers/deep_learning_column_store.pdf)
+- [Deep Integration of Machine Learning Into Column Stores](https://openproceedings.org/2018/conf/edbt/paper-293.pdf)
 - [Deep Learning for Entity Matching: A Design Space Exploration](http://pages.cs.wisc.edu/~anhai/papers1/deepmatcher-sigmod18.pdf)
 - [Vectorized UDFs in Column-Stores](https://mytherin.github.io/papers/2016-vectorizedudfs.pdf)
 - [devUDF: Increasing UDF development efficiency through IDE](https://openproceedings.org/2019/conf/edbt/EDBT19_paper_242.pdf)

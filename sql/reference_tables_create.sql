@@ -8,8 +8,7 @@ ALTER TABLE matched_cameras ADD CONSTRAINT "fk_matched_cameras_id" FOREIGN KEY (
 
 -- just a proxy reference table to keep non-matches from blocking & filtering
 CREATE TABLE unmatched_cameras (
-    "camera_id" VARCHAR(128) PRIMARY KEY,
-    "signature" VARCHAR(256)
+    "camera_id" VARCHAR(128) PRIMARY KEY
 );
 
 ALTER TABLE unmatched_cameras ADD CONSTRAINT "fk_unmatched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);

@@ -11,5 +11,5 @@ SELECT camera_id, camera_brand  || '_' || camera_model from matches;  -- signatu
 
 -- store all the rest here
 INSERT INTO unmatched_cameras
-SELECT cameras.id, null FROM cameras
+SELECT cameras.id FROM cameras
 WHERE NOT EXISTS (SELECT id FROM matched_cameras WHERE cameras.id = matched_cameras.camera_id);

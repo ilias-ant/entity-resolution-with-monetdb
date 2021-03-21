@@ -1,6 +1,6 @@
 -- this script contains all the statements needed to perform the task, from schema creation till the very end
--- each separate component is also available for study under the sql/ directory
 -- all you have to do is replace the absolute paths to the datafiles where necessary
+-- note: each separate component/action is also available for study under the sql/ directory
 
 -- DATA LOADING --------------------------------------------------------------------------------------------------
 
@@ -157,25 +157,18 @@ LANGUAGE PYTHON_MAP {
 };
 
 -- extracts the camera brand from text, based on a close-set of brands
-CREATE OR REPLACE FUNCTION camera_brand(text STRING)
+CREATE OR REPLACE FUNCTION camera_brand(text STRING, brands STRING)
 RETURNS STRING
 LANGUAGE PYTHON_MAP {
     import re
-
-    brands = [
-        "aiptek", "apple", "argus", "benq", "canon", "casio", "coleman", "contour", "dahua", "epson", "fujifilm",
-        "garmin", "ge", "gopro", "hasselblad", "hikvision", "howell", "hp", "intova", "jvc", "kodak", "leica", "lg",
-        "lowepro", "lytro", "minolta", "minox", "motorola", "mustek", "nikon", "olympus", "panasonic", "pentax",
-        "philips", "polaroid", "ricoh", "sakar", "samsung", "sanyo", "sekonic", "sigma", "sony", "tamron", "toshiba",
-        "vivitar", "vtech", "wespro", "yourdeal"
-    ]
 
 
     def adjust_short_brand(b):
 
         return b if len(b) > 2 else " {} ".format(b)
 
-    matcher = re.compile(r'|'.join(adjust_short_brand(b) for b in brands))
+    # create a matcher based on brands input
+    matcher = re.compile(r'|'.join(adjust_short_brand(b) for b in brands[0].split(',')))
 
 
     def retrieve_brand(txt):
@@ -198,6 +191,7 @@ LANGUAGE PYTHON_MAP {
         "cm", "mm", "nm", "inch", "gb", "mb", "mp", "megapixel", "megapixels", "mega", "ghz", "hz", "mah", "cmos", "mps"
     ]
 
+
     def model_contains_measurement_units(m):
 
         contains = False
@@ -209,26 +203,46 @@ LANGUAGE PYTHON_MAP {
         return contains
 
 
+    def adjusted_model(m, txt):
+
+        if m in ['1d', '5d', '7d', '1ds']:  # canon models heurisric
+
+            if ' mark iv ' in txt:
+                m = '{}_{}'.format(m, 'mark4')
+            elif ' mark iii ' in txt:
+                m = '{}_{}'.format(m, 'mark3')
+            elif ' mark ii ' in txt:
+                m = '{}_{}'.format(m, 'mark2')
+            elif ' mark i ' in txt:
+                m = '{}_{}'.format(m, 'mark1')
+
+        return m
+
+
     def retrieve_model(txt):
 
         models = re.findall(r'[a-z]{1,2}\d+\s|\d+[a-z]{1,2}\s', txt, flags=re.IGNORECASE)
 
-        models = [model.strip() for model in models if not model_contains_measurement_units(model.strip())]
+        models = [model for model in models if not model_contains_measurement_units(model.strip())]
 
         # position-wise, leftmost extracted model is likelier to be the model
-        return models[0] if models else ''
+        return adjusted_model(models[0].strip(), txt) if models else ''
 
     return numpy.array([retrieve_model(title) for title in text], dtype=numpy.object)
 };
 
 UPDATE cameras
-SET brand_id = extraction.brand_id
+SET brand_id = extraction.brand_id   -- assign to block
 FROM (
-    WITH camera (id, extracted_brand)
-    AS (SELECT id, camera_brand(fix_aliases(sanitize_text(to_lowercase(page_title)))) from cameras)
-    SELECT camera.id AS camera_id, camera.extracted_brand, brands.id AS brand_id FROM camera
-    INNER JOIN brands ON camera.extracted_brand = brands.name
-    ) AS extraction
+    WITH processed_camera (id, extracted_brand) AS (
+        SELECT
+        id, camera_brand(fix_aliases(sanitize_text(to_lowercase(page_title))), (SELECT listagg(name) FROM brands))
+        FROM cameras
+    )
+    SELECT processed_camera.id AS camera_id, processed_camera.extracted_brand, b.id AS brand_id
+    FROM processed_camera
+    INNER JOIN brands b ON processed_camera.extracted_brand = b.name
+) AS extraction
 WHERE cameras.id = extraction.camera_id;
 
 -- FILTERING --------------------------------------------------------------------------------------------------------
@@ -241,8 +255,7 @@ CREATE TABLE matched_cameras (
 ALTER TABLE matched_cameras ADD CONSTRAINT "fk_matched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);
 
 CREATE TABLE unmatched_cameras (
-    "camera_id" VARCHAR(128) PRIMARY KEY,
-    "signature" VARCHAR(256)
+    "camera_id" VARCHAR(128) PRIMARY KEY
 );
 
 ALTER TABLE unmatched_cameras ADD CONSTRAINT "fk_unmatched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);
@@ -255,8 +268,8 @@ SELECT cameras.id as camera_id,
 FROM cameras
 INNER JOIN brands b ON cameras.brand_id = b.id
 WHERE camera_model(fix_aliases(sanitize_text(to_lowercase(page_title)))) <> '')
-SELECT camera_id, camera_brand  || '_' || camera_model from matches;
+SELECT camera_id, camera_brand  || '_' || camera_model from matches;   -- signature: brand + model
 
 INSERT INTO unmatched_cameras
-SELECT cameras.id, null FROM cameras
+SELECT cameras.id FROM cameras
 WHERE NOT EXISTS (SELECT id FROM matched_cameras WHERE cameras.id = matched_cameras.camera_id);
