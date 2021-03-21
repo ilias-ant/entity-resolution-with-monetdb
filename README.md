@@ -3,6 +3,8 @@
 
 A proof-of-concept approach on an entity resolution task, with [Tensorflow](https://github.com/tensorflow/tensorflow) 
 for the machine learning part and **everything** happening inside a [MonetDB](https://www.monetdb.org/Home) instance. 
+This project was part of the course **Large Scale Data Management** at the MSc in Data Science of AUEB, carried out 
+during the Winter Quarter 2020-21.
 
 In other words, a MonetDB database instance that performs machine learning and de-duplicates products that are 
 essentially the same, in its own right.

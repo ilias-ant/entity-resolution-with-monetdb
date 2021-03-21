@@ -26,11 +26,11 @@ LANGUAGE PYTHON_MAP {
     aliases = {
         "cannon": "canon", "canonpowershot": "canon", "eos": "canon", "used canon": "canon", "fugi": "fujifilm",
         "fugifilm": "fujifilm", "fuji": "fujifilm", "fujufilm": "fujifilm", "fijifilm": "fujifilm",
-        "fuijifilm": "fujifilm", "general": "ge", "gopros": "gopro", "hikvision3mp":"hikvision",
+        "fuijifilm": "fujifilm", "general": "ge", "gopros": "gopro", "go pro": "gopro", "hikvision3mp":"hikvision",
         "hikvisionip": "hikvision", "bell+howell": "howell", "howellwp7": "howell", "minotla": "minolta",
         "canon&nikon": "nikon", "olympuss": "olympus", "panosonic": "panasonic", "pentax": "ricoh",
         "ssamsung": "samsung", "repairsony": "sony", "elf": "elph", "s480016mp": "s4800", "vivicam": "v", "plus": "+",
-        "1080p": "", "720p": "", "t3i": "600d"
+        "1080p": "", "720p": "", "t3i": "600d", "kodax": "kodak", "nixon": "nikon"
     }
 
     def replace_aliases(txt):
