@@ -125,7 +125,8 @@ match both on brand and model (and basically refer to the same camera).
 
 To implement the filtering step, we will need the following:
 
-15. sql/filtering.sql
+15. sql/reference_tables_create.sql
+16. sql/filtering.sql
 
 What we have gained from blocking & filtering is that we now only have to work (and eventually perform pair-wise 
 comparisons) with the camera subsets that remained unmatched within blocks.

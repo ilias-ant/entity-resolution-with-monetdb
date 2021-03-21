@@ -30,7 +30,7 @@ LANGUAGE PYTHON_MAP {
         "hikvisionip": "hikvision", "bell+howell": "howell", "howellwp7": "howell", "minotla": "minolta",
         "canon&nikon": "nikon", "olympuss": "olympus", "panosonic": "panasonic", "pentax": "ricoh",
         "ssamsung": "samsung", "repairsony": "sony", "elf": "elph", "s480016mp": "s4800", "vivicam": "v", "plus": "+",
-        "1080p": "", "720p": "", "(not Provided)": ""
+        "1080p": "", "720p": "", "t3i": "600d"
     }
 
     def replace_aliases(txt):
