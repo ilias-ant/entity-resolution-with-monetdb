@@ -142,7 +142,7 @@ LANGUAGE PYTHON_MAP {
         "hikvisionip": "hikvision", "bell+howell": "howell", "howellwp7": "howell", "minotla": "minolta",
         "canon&nikon": "nikon", "olympuss": "olympus", "panosonic": "panasonic", "pentax": "ricoh",
         "ssamsung": "samsung", "repairsony": "sony", "elf": "elph", "s480016mp": "s4800", "vivicam": "v", "plus": "+",
-        "1080p": "", "720p": "", "(not Provided)": ""
+        "1080p": "", "720p": "", "t3i": "600d"
     }
 
     def replace_aliases(txt):
@@ -245,10 +245,10 @@ INSERT INTO matched_cameras
 WITH matches (camera_id, camera_brand, camera_model) AS (
 SELECT cameras.id as camera_id,
        b.name as camera_brand,
-       camera_model(sanitize_text(to_lowercase(page_title))) as camera_model
+       camera_model(fix_aliases(sanitize_text(to_lowercase(page_title)))) as camera_model
 FROM cameras
 INNER JOIN brands b ON cameras.brand_id = b.id
-WHERE camera_model(sanitize_text(to_lowercase(page_title))) <> '')
+WHERE camera_model(fix_aliases(sanitize_text(to_lowercase(page_title)))) <> '')
 SELECT camera_id, camera_brand  || '_' || camera_model from matches;
 
 INSERT INTO unmatched_cameras
