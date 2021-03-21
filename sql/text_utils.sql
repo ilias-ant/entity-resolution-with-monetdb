@@ -50,21 +50,27 @@ RETURNS STRING
 LANGUAGE PYTHON_MAP {
     import re
 
-
-    matcher = re.compile(r'|'.join([
+    brands = [
         "aiptek", "apple", "argus", "benq", "canon", "casio", "coleman", "contour", "dahua", "epson", "fujifilm",
         "garmin", "ge", "gopro", "hasselblad", "hikvision", "howell", "hp", "intova", "jvc", "kodak", "leica", "lg",
         "lowepro", "lytro", "minolta", "minox", "motorola", "mustek", "nikon", "olympus", "panasonic", "pentax",
         "philips", "polaroid", "ricoh", "sakar", "samsung", "sanyo", "sekonic", "sigma", "sony", "tamron", "toshiba",
         "vivitar", "vtech", "wespro", "yourdeal"
-    ]))
+    ]
+
+
+    def adjust_short_brand(b):
+
+        return b if len(b) > 2 else " {} ".format(b)
+
+    matcher = re.compile(r'|'.join(adjust_short_brand(b) for b in brands))
 
 
     def retrieve_brand(txt):
 
         match = matcher.search(txt)
 
-        return match.group() if match else ''
+        return match.group().strip() if match else ''
 
     return numpy.array([retrieve_brand(title) for title in text], dtype=numpy.object)
 };
