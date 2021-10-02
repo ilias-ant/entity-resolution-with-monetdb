@@ -45,8 +45,8 @@ For a more detailed view of the task, the datasets, the evaluation process, see 
 
 ## System Dependencies
 
-- Debian-based distribution (tested against [Ubuntu 18.04.5](https://releases.ubuntu.com/18.04/))
-- MonetDB with embedded Python3 support (tested against [v11.39.11](https://www.monetdb.org/Downloads/ReleaseNotes))
+- Debian-based distribution (tested against [Ubuntu 18.04.5](https://releases.ubuntu.com/18.04/) and [Pop!_OS 20.04](https://pop.system76.com/))
+- MonetDB with embedded Python3 support (tested against [v11.39.11, v11.41.5](https://www.monetdb.org/Downloads/ReleaseNotes))
 
 ## MonetDB setup
 
