@@ -170,8 +170,7 @@ LANGUAGE python {
 
 SELECT tensorflow_healthcheck();
 ```
-should display the Tensorflow version. In case an error emerges: ``No module named 'tensorflow'`` simply install the
-library:
+should display the Tensorflow version. In case the error ``No module named 'tensorflow'`` emerges, simply install the library:
 
 ```shell
 python3 -m pip install tensorflow
