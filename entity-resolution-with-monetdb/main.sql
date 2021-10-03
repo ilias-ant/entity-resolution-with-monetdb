@@ -210,19 +210,7 @@ WHERE cameras.id = extraction.camera_id;
 -- FILTERING --------------------------------------------------------------------------------------------------------
 -- perform filtering within blocks, based on extracted model, and thus create matched and unmatched clusters
 
-
-CREATE TABLE matched_cameras (
-    "camera_id" VARCHAR(128) PRIMARY KEY,
-    "signature" VARCHAR(256)
-);
-
-ALTER TABLE matched_cameras ADD CONSTRAINT "fk_matched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);
-
-CREATE TABLE unmatched_cameras (
-    "camera_id" VARCHAR(128) PRIMARY KEY
-);
-
-ALTER TABLE unmatched_cameras ADD CONSTRAINT "fk_unmatched_cameras_id" FOREIGN KEY (camera_id) REFERENCES cameras (id);
+ALTER TABLE cameras ADD COLUMN signature VARCHAR(128);
 
 -- extracts the camera model from text, based on heuristics
 CREATE OR REPLACE FUNCTION camera_model(text STRING)
@@ -275,7 +263,9 @@ LANGUAGE PYTHON_MAP {
     return numpy.array([retrieve_model(title) for title in text], dtype=numpy.object)
 };
 
-INSERT INTO matched_cameras
+-- store the signatures
+UPDATE cameras
+SET signature = (
 WITH matches (camera_id, camera_brand, camera_model) AS (
 SELECT cameras.id as camera_id,
        b.name as camera_brand,
@@ -283,11 +273,7 @@ SELECT cameras.id as camera_id,
 FROM cameras
 INNER JOIN brands b ON cameras.brand_id = b.id
 WHERE camera_model(fix_aliases(sanitize_text(to_lowercase(page_title)))) <> '')
-SELECT camera_id, camera_brand  || '_' || camera_model from matches;   -- signature: brand + model
-
-INSERT INTO unmatched_cameras
-SELECT cameras.id FROM cameras
-WHERE NOT EXISTS (SELECT id FROM matched_cameras WHERE cameras.id = matched_cameras.camera_id);
+SELECT camera_brand  || '_' || camera_model FROM matches WHERE matches.camera_id = cameras.id);
 
 ---------------------------------------------------------------------------------------------------------------------
 -- MATCHING ---------------------------------------------------------------------------------------------------------

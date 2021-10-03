@@ -145,10 +145,7 @@ match both on brand and model (and basically refer to the same camera).
 
 To implement the filtering step, we will need the following:
 
-15. sql/reference_tables_create.sql
-16. sql/filtering.sql
-
-**performance**: to execute all the above takes, on average, **6.5 s**. 
+15. sql/filtering.sql
 
 ## Matching
 
