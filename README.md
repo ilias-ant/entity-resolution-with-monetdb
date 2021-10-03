@@ -180,6 +180,8 @@ Now, onto the "matching" step.
 A first crucial observation is that the labelled dataset is transitively closed (i.e., if A matches with B and B matches
 with C, then A matches with C).
 
+-- \# *work in progress* 🚧
+
 ## Papers
 
 - [End-to-End Entity Resolution for Big Data: A Survey](https://arxiv.org/pdf/1905.06397.pdf)
