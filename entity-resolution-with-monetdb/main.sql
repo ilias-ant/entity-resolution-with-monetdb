@@ -288,3 +288,7 @@ SELECT camera_id, camera_brand  || '_' || camera_model from matches;   -- signat
 INSERT INTO unmatched_cameras
 SELECT cameras.id FROM cameras
 WHERE NOT EXISTS (SELECT id FROM matched_cameras WHERE cameras.id = matched_cameras.camera_id);
+
+---------------------------------------------------------------------------------------------------------------------
+-- MATCHING ---------------------------------------------------------------------------------------------------------
+-- perform matching within blocks, on the unmatched products (aka those without an extracted signature)

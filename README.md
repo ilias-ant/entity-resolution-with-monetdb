@@ -72,6 +72,29 @@ monetdb set embedpy3=true ecommercedb
 monetdb release ecommercedb
 ```
 
+Now, to run a simple health check:
+
+```shell
+mclient -u monetdb -d ecommercedb  # password is the default (<monetdb>)
+```
+
+and run the following:
+
+```sql
+CREATE OR REPLACE FUNCTION python_healthcheck () 
+RETURNS STRING 
+LANGUAGE python {
+    import sys 
+
+
+    return sys.version
+};
+
+SELECT python_healthcheck();
+```
+
+this should display your system-wide Python version.
+
 ## Data Loading
 
 Make sure that the dataset is in extracted form. For example, you can use:
@@ -80,18 +103,13 @@ Make sure that the dataset is in extracted form. For example, you can use:
 tar xvzf data/camera_specs.tar.gz -C ./data
 ```
 
-All the necessary SQL statements (UDFs etc.) are available in the ``sql/`` directory, with each independent component 
-hosted in a separate ``.sql`` file.
+All the necessary SQL statements (UDFs etc.) are available in the ``entity-resolution-with-monetdb/sql/`` directory, 
+with each independent component hosted in a separate ``.sql`` file.
 
-**NOTE**: Also, for convenience, there is the ``main.sql`` available, which contains all the SQL statements together 
+**NOTE**: Also, for convenience, there is the ``entity-resolution-with-monetdb/main.sql`` available, which contains all the SQL statements together 
 and can be used for a quicker build.
 
-Just open:
-
-```shell
-mclient -u monetdb -d ecommercedb  # password is the default (<monetdb>)
-```
-and cast the SQL statements, preferably in the above order:
+Simply cast the SQL statements, preferably in the order below, in the ``mclient`` shell:
 
 1. sql/cameras_loader.sql
 2. sql/specs_loader.sql
@@ -130,15 +148,48 @@ To implement the filtering step, we will need the following:
 15. sql/reference_tables_create.sql
 16. sql/filtering.sql
 
+**performance**: to execute all the above takes, on average, **6.5 s**. 
+
+## Matching
+
 What we have gained from blocking & filtering is that we now only have to work (and eventually perform pair-wise 
 comparisons) with the camera subsets that remained unmatched within blocks.
 
-**performance**: to execute all the above takes, on average, **6.5 s**. 
+Before we proceed, let's make sure that [Tensorflow](https://github.com/tensorflow/tensorflow) is installed. Running the
+following statement in the ``mclient``:
+
+```sql
+CREATE OR REPLACE FUNCTION tensorflow_healthcheck () 
+RETURNS STRING 
+LANGUAGE python {
+    import tensorflow as tf 
+    
+    
+    return tf.version.VERSION
+};
+
+SELECT tensorflow_healthcheck();
+```
+should display the Tensorflow version. In case an error emerges: ``No module named 'tensorflow'`` simply install the
+library:
+
+```shell
+python3 -m pip install tensorflow
+```
+
+and perform again the health check through the ``mclient``. 
+
+Now, onto the "matching" step.
+
+A first crucial observation is that the labelled dataset is transitively closed (i.e., if A matches with B and B matches
+with C, then A matches with C).
 
 ## Papers
 
-- [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
+- [End-to-End Entity Resolution for Big Data: A Survey](https://arxiv.org/pdf/1905.06397.pdf)
+- [Evaluation of entity resolution approaches on real-world match problems](https://dbs.uni-leipzig.de/file/EvaluationOfEntityResolutionApproaches_vldb2010_CameraReady.pdf)
 - [A Survey of Blocking and Filtering Techniques for Entity Resolution](https://arxiv.org/pdf/1905.06167.pdf)
+- [IDEL: In-Database Entity Linking with Neural Embeddings](https://arxiv.org/abs/1803.04884)
 - [Deep Integration of Machine Learning Into Column Stores](https://openproceedings.org/2018/conf/edbt/paper-293.pdf)
 - [Deep Learning for Entity Matching: A Design Space Exploration](http://pages.cs.wisc.edu/~anhai/papers1/deepmatcher-sigmod18.pdf)
 - [Vectorized UDFs in Column-Stores](https://mytherin.github.io/papers/2016-vectorizedudfs.pdf)
